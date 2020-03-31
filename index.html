@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>ROAP and Vega</title>
+
+  <link rel='icon' href='data:image/png;base64,' />
+  <link rel='stylesheet' crossorigin='anonymous' href='https://cdn.jsdelivr.net/npm/shoelace-css@1.0.0-beta24/dist/shoelace.css' />
+  <style>
+    body>main {
+      max-width: 40em;
+      margin: 2em auto;
+    }
+    .color_grid {
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: 33% 33% 33%;
+    }
+    .color_grid>div {
+      height: 200px;
+    }
+  </style>
+
+  <script type='module' src='https://cdn.jsdelivr.net/npm/jsy-transpile/esm/jsy-script.min.js'></script>
+</head>
+
+<body>
+  <main>
+    <label>Red <input id=aaa type=range min=0 max=255 value=95 /></label>
+    <label>Green <input id=bbb type=range min=0 max=255 value=45 /></label>
+    <label>Blue <input id=ccc type=range min=0 max=255 value=225 /></label>
+
+    <div class='color_grid'>
+      <div id=tgt_rgb>RGB</div>
+      <div id=tgt_grb>GRB</div>
+      <div id=tgt_bgr>BGR</div>
+
+      <div id=tgt_rbg>RBG</div>
+      <div id=tgt_gbr>GBR</div>
+      <div id=tgt_brg>BRG</div>
+    </div>
+  </main>
+
+  <jsy-script>
+    import @{}
+      ao_dom, ao_watch, ao_track_kw, ao_track_pos
+    from 'https://cdn.jsdelivr.net/npm/roap/esm/index.mjs'
+
+    const ao_deps = ao_track_pos @#
+      ao_dom @ '#aaa'
+      ao_dom @ '#bbb'
+      ao_dom @ '#ccc'
+
+    const el = {}
+    for const k of 'rgb rbg grb gbr bgr brg'.split(' ') ::
+      el[k] = document.querySelector(`#tgt_${k}`)
+
+    ao_watch @ ao_deps,
+      ([r, g, b]) => set_bg @ el.rgb, r, g, b
+
+    ao_watch @ ao_deps,
+      ([r, g, b]) => set_bg @ el.rbg, r, b, r
+
+    ao_watch @ ao_deps,
+      ([r, g, b]) => set_bg @ el.grb, g, r, b
+
+    ao_watch @ ao_deps,
+      ([r, g, b]) => set_bg @ el.gbr, g, b, r
+
+    ao_watch @ ao_deps,
+      ([r, g, b]) => set_bg @ el.bgr, b, g, r
+
+    ao_watch @ ao_deps,
+      ([r, g, b]) => set_bg @ el.brg, b, r, g
+
+
+    function set_bg(el, ...args) ::
+      el.style.backgroundColor =
+        `rgb(${args})`
+  </jsy-script>
+</body>
+</html>
